@@ -1,10 +1,10 @@
 from copy import deepcopy
 
 empty_board = [[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0]]
-good_move_board = [[0,0,0],[0,0,0,0],[0,1,0],[0,1,1,0],[0,0,0],[0,0,0,0],[0,0,0]]
+good_move_board = [[1,0,1],[0,1,0,0],[0,1,0],[0,1,1,0],[0,1,0],[0,0,1,0],[1,1,0]]
 ending_move_board = [[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,0,1]]
 class AndreiVasilescu25031993:
-    DEFAULT_SEARCH_DEPTH = 10
+    DEFAULT_SEARCH_DEPTH = 5
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
@@ -19,7 +19,8 @@ class AndreiVasilescu25031993:
         self.name = "Andrei Vasilescu"
 
     def move(self, board, score):
-        return self.findMiniMaxMove(board, self.DEFAULT_SEARCH_DEPTH)
+        nextMove = self.findMiniMaxMove(board, self.DEFAULT_SEARCH_DEPTH)
+        return nextMove
 
     #OK
     def getPossibleMoves(self, board):
@@ -127,6 +128,9 @@ class AndreiVasilescu25031993:
 
     def findMiniMaxMove(self, board, maxDepth):
         possibleMoves = self.getPossibleSuccessfullMoves(board)
+        if len(possibleMoves) == 0:
+            possibleMoves = self.getPossibleMoves(board)
+
         maxValue = self.MIN_VALUE
         bestMove = (0,0)
         for currentMove in possibleMoves:
@@ -143,7 +147,7 @@ class AndreiVasilescu25031993:
 
     def exploreMinimizerNode(self, board, maxDepth, alfa, beta):
         if maxDepth == 0:
-            return self.MAX_VALUE
+            return 0
 
         nodeValue = self.MAX_VALUE
         possibleMoves = self.getPossibleFailingMoves(board)
@@ -159,14 +163,14 @@ class AndreiVasilescu25031993:
             if score < nodeValue:
                 nodeValue = score
 
-            if nodeValue < alfa:
+            if nodeValue <= alfa:
                 return nodeValue
 
         return nodeValue
 
     def exploreMaximizerNode(self, board, maxDepth, alfa, beta):
         if maxDepth == 0:
-            return self.MIN_VALUE
+            return 0
 
         nodeValue = self.MIN_VALUE
         possibleMoves = self.getPossibleSuccessfullMoves(board)
@@ -179,7 +183,7 @@ class AndreiVasilescu25031993:
             if self.moveEarnsPoints(board, currentMove):
                 score = score + 1
 
-            if score > nodeValue:
+            if score >= nodeValue:
                 nodeValue = score
 
             if nodeValue > beta:
