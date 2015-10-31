@@ -1,7 +1,11 @@
+from copy import deepcopy
+
 class AndreiVasilescu25031993:
     DEFAULT_SEARCH_DEPTH = 10
     ROW = 0
     COLUMN = 1
+    MAX_VALUE = 100000
+    MIN_VALUE = -100000
 
     def enum(self, **enums):
         return type('Enum', (), enums)
@@ -14,7 +18,6 @@ class AndreiVasilescu25031993:
     def move(self, board, score):
         return findMiniMaxMove(self, board, score, DEFAULT_SEARCH_DEPTH)
 
-    #ToDo: Needs testing
     def getPossibleMoves(self, board):
         movesArray = []
 
@@ -26,7 +29,6 @@ class AndreiVasilescu25031993:
 
         return movesArray
 
-    #ToDo: Needs testing
     def getPossibleSuccessfullMoves(self, board):
         movesArray = []
         for row in range(len(board)):
@@ -37,7 +39,6 @@ class AndreiVasilescu25031993:
                     movesArray.append(currentMove)
         return movesArray
 
-    #ToDo: Needs testing
     def moveEarnsPoints(self, board, playerMove):
         moveOrientation = getLineOrientationForMove(playerMove)
         if moveOrientation == LineOrientation.HORIZONTAL:
@@ -94,14 +95,59 @@ class AndreiVasilescu25031993:
         else:
             return LineOrientation.VERTICAL
 
-    def getSimulatedMoveBoard(self, board):
-        #ToDo:
+    def getSimulatedMoveBoard(self, board, playerMove):
+        simulatedBoard = deepcopy(board)
+        return performMoveOnBoard(simulatedBoard, playerMove)
+
+    def performMoveOnBoard(self, board, playerMove):
+        moveRow = playerMove[ROW]
+        moveColumn = playerMove[COLUMN]
+        board[moveRow][moveColumn] = 1
         return board
 
-    def findMiniMaxMove(self, board, score, maxDepth):
-        #ToDo:
-        return (0,0)
+    def findMiniMaxMove(self, board, maxDepth):
+        possibleMoves = getPossibleSuccessfullMoves(board)
+        maxValue = MIN_VALUE
+        bestMove = (0,0)
+        for currentMove in possibleMoves:
+            simulatedBoard = getSimulatedMoveBoard(board, currentMove)
+            score = exploreMinimizerNode(board, maxDepth, MIN_VALUE, MAX_VALUE)
+            if score > maxValue:
+                maxValue = score
+                bestMove = currentMove
 
-    def exploreAlfaBetaNode(self, board, score, maxDepth, alfa, beta):
-        #ToDo:
-        return None
+        return bestMove
+
+    def exploreMinimizerNode(self, board, maxDepth, alfa, beta):
+        if maxDepth == 0:
+            return MAX_VALUE
+
+        nodeValue = MAX_VALUE
+        possibleMoves = getPossibleMoves(board)
+        for currentMove in possibleMoves:
+            simulatedBoard = getSimulatedBoard(board, currentMove)
+            score = exploreMaximizerNode(board, maxDepth, alfa, nodeValue)
+            if score[0] < nodeValue:
+                nodeValue = score[0]
+
+            if nodeValue < alfa:
+                return nodeValue
+
+        return nodeValue
+
+    def exploreMaximizerNode(self, board, maxDepth, alfa, beta):
+        if maxDepth == 0:
+            return MIN_VALUE
+
+        nodeValue = MIN_VALUE
+        possibleMoves = getPossibleSuccessfullMoves(board)
+        for currentMove in possibleMoves:
+            simulatedBoard = getSimulatedBoard(board, currentMove)
+            score = exploreMinimizerNode(board, maxDepth - 1, nodeValue, beta)
+            if score > nodeValue:
+                nodeValue = score
+
+            if nodeValue > beta:
+                return nodeValue
+
+        return nodeValue
