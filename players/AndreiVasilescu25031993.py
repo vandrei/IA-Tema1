@@ -1,5 +1,8 @@
 from copy import deepcopy
 
+empty_board = [[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0]]
+good_move_board = [[0,0,0],[0,0,0,0],[0,1,0],[0,1,1,0],[0,0,0],[0,0,0,0],[0,0,0]]
+ending_move_board = [[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,0,1]]
 class AndreiVasilescu25031993:
     DEFAULT_SEARCH_DEPTH = 10
     ROW = 0
@@ -16,8 +19,9 @@ class AndreiVasilescu25031993:
         self.name = "Andrei Vasilescu"
 
     def move(self, board, score):
-        return findMiniMaxMove(self, board, score, DEFAULT_SEARCH_DEPTH)
+        return self.findMiniMaxMove(board, self.DEFAULT_SEARCH_DEPTH)
 
+    #OK
     def getPossibleMoves(self, board):
         movesArray = []
 
@@ -29,36 +33,42 @@ class AndreiVasilescu25031993:
 
         return movesArray
 
+    #OK
     def getPossibleSuccessfullMoves(self, board):
         movesArray = []
         for row in range(len(board)):
             currentRow = board[row]
             for column in range(len(currentRow)):
-                currentMove = (row, column)
-                if (moveEarnsPoints(board, currentMove)):
-                    movesArray.append(currentMove)
+                if currentRow[column] == 0:
+                    currentMove = (row, column)
+                    if (self.moveEarnsPoints(board, currentMove)):
+                        movesArray.append(currentMove)
         return movesArray
 
+    #OK
     def getPossibleFailingMoves(self, board):
         movesArray = []
         for row in range(len(board)):
             currentRow = board[row]
             for column in range(len(currentRow)):
-                currentMove = (row, column)
-                if (moveEarnsPoints(board, currentMove) == False):
-                    movesArray.append(currentMove)
+                if currentRow[column] == 0:
+                    currentMove = (row, column)
+                    if (self.moveEarnsPoints(board, currentMove) == False):
+                        movesArray.append(currentMove)
         return movesArray
 
+    #OK
     def moveEarnsPoints(self, board, playerMove):
-        moveOrientation = getLineOrientationForMove(playerMove)
-        if moveOrientation == LineOrientation.HORIZONTAL:
-            return horizontalMoveEarnsPoints(board, playerMove)
+        moveOrientation = self.getLineOrientationForMove(playerMove)
+        if moveOrientation == self.LineOrientation.HORIZONTAL:
+            return self.horizontalMoveEarnsPoints(board, playerMove)
         else:
-            return verticalMoveEarnsPoints(board, playerMove)
+            return self.verticalMoveEarnsPoints(board, playerMove)
 
+    #OK
     def horizontalMoveEarnsPoints(self, board, playerMove):
-        moveRow = playerMove[ROW]
-        moveColumn = playerMove[COLUMN]
+        moveRow = playerMove[self.ROW]
+        moveColumn = playerMove[self.COLUMN]
         aboveRow = moveRow - 2
         if aboveRow >= 0:
             if board[aboveRow][moveColumn] == 1:
@@ -74,9 +84,10 @@ class AndreiVasilescu25031993:
                     return True
         return False
 
+    #OK
     def verticalMoveEarnsPoints(self, board, playerMove):
-        moveRow = playerMove[ROW]
-        moveColumn = playerMove[COLUMN]
+        moveRow = playerMove[self.ROW]
+        moveColumn = playerMove[self.COLUMN]
         leftColumn = moveColumn - 1
         if leftColumn >= 0:
             if board[moveRow][leftColumn] == 1:
@@ -90,34 +101,40 @@ class AndreiVasilescu25031993:
             if board[moveRow][rightColumn] == 1:
                 aboveRow = moveRow - 1
                 belowRow = aboveRow + 2
-                if board[aboveRow][rightColumn] == 1 and board[belowRow][rightColumn] == 1:
+                if board[aboveRow][moveColumn] == 1 and board[belowRow][moveColumn] == 1:
                     return True
         return False
 
+    #OK
     def getLineOrientationForMove(self, playerMove):
-        row = playerMove[ROW]
+        row = playerMove[self.ROW]
         if row % 2 == 0:
-            return LineOrientation.HORIZONTAL
+            return self.LineOrientation.HORIZONTAL
         else:
-            return LineOrientation.VERTICAL
+            return self.LineOrientation.VERTICAL
 
+    #OK
     def getSimulatedMoveBoard(self, board, playerMove):
         simulatedBoard = deepcopy(board)
-        return performMoveOnBoard(simulatedBoard, playerMove)
+        return self.performMoveOnBoard(simulatedBoard, playerMove)
 
+    #OK
     def performMoveOnBoard(self, board, playerMove):
-        moveRow = playerMove[ROW]
-        moveColumn = playerMove[COLUMN]
+        moveRow = playerMove[self.ROW]
+        moveColumn = playerMove[self.COLUMN]
         board[moveRow][moveColumn] = 1
         return board
 
     def findMiniMaxMove(self, board, maxDepth):
-        possibleMoves = getPossibleSuccessfullMoves(board)
-        maxValue = MIN_VALUE
+        possibleMoves = self.getPossibleSuccessfullMoves(board)
+        maxValue = self.MIN_VALUE
         bestMove = (0,0)
         for currentMove in possibleMoves:
-            simulatedBoard = getSimulatedMoveBoard(board, currentMove)
-            score = exploreMinimizerNode(board, maxDepth, MIN_VALUE, MAX_VALUE)
+            simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
+            score = self.exploreMinimizerNode(board, maxDepth - 1, maxValue, self.MAX_VALUE)
+            if self.moveEarnsPoints(board, currentMove):
+                score = score + 1
+
             if score > maxValue:
                 maxValue = score
                 bestMove = currentMove
@@ -126,18 +143,21 @@ class AndreiVasilescu25031993:
 
     def exploreMinimizerNode(self, board, maxDepth, alfa, beta):
         if maxDepth == 0:
-            return MAX_VALUE
+            return self.MAX_VALUE
 
-        nodeValue = MAX_VALUE
-        possibleMoves = getPossibleFailingMoves(board)
+        nodeValue = self.MAX_VALUE
+        possibleMoves = self.getPossibleFailingMoves(board)
         if len(possibleMoves) == 0:
-            possibleMoves = getPossibleMoves(board)
+            possibleMoves = self.getPossibleMoves(board)
 
         for currentMove in possibleMoves:
-            simulatedBoard = getSimulatedBoard(board, currentMove)
-            score = exploreMaximizerNode(board, maxDepth, alfa, nodeValue)
-            if score[0] < nodeValue:
-                nodeValue = score[0]
+            simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
+            score = self.exploreMaximizerNode(board, maxDepth - 1, alfa, nodeValue)
+            if self.moveEarnsPoints(board, currentMove):
+                score = score + 1
+
+            if score < nodeValue:
+                nodeValue = score
 
             if nodeValue < alfa:
                 return nodeValue
@@ -146,17 +166,17 @@ class AndreiVasilescu25031993:
 
     def exploreMaximizerNode(self, board, maxDepth, alfa, beta):
         if maxDepth == 0:
-            return MIN_VALUE
+            return self.MIN_VALUE
 
-        nodeValue = MIN_VALUE
-        possibleMoves = getPossibleSuccessfullMoves(board)
+        nodeValue = self.MIN_VALUE
+        possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
-            possibleMoves = getPossibleMoves(board)
+            possibleMoves = self.getPossibleMoves(board)
 
         for currentMove in possibleMoves:
-            simulatedBoard = getSimulatedBoard(board, currentMove)
-            score = exploreMinimizerNode(board, maxDepth - 1, nodeValue, beta)
-            if moveEarnsPoints(board, currentMove):
+            simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
+            score = self.exploreMinimizerNode(board, maxDepth - 1, nodeValue, beta)
+            if self.moveEarnsPoints(board, currentMove):
                 score = score + 1
 
             if score > nodeValue:
