@@ -1,0 +1,27 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[romanian]{babel}
+
+\title{Clasament \emph{Biscuitele}}
+\author{Arsenie Boca}
+
+\begin{document}
+
+\maketitle
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}[h]{| l | c | c | c |}
+    \hline
+    \textbf{Nume} & \textbf{Victorii} & \textbf{Infrangeri} & \textbf{Puncte} \\
+    {% for player in stats %}
+      \hline
+      {{ player.name }} & {{ player.W }} & {{ player.L }} & {{ player.score }} \\
+    {% endfor %}
+      \hline
+  \end{tabular}
+  \caption{Clasament}
+  \label{tab:scores}
+\end{table}
+\end{document}
