@@ -139,7 +139,7 @@ class AndreiVasilescu25031993:
             if self.moveEarnsPoints(board, currentMove):
                 score = score + 1
 
-            if score > maxValue:
+            if score >= maxValue:
                 maxValue = score
                 bestMove = currentMove
 
