@@ -4,7 +4,7 @@ empty_board = [[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0]]
 good_move_board = [[1,0,1],[0,1,0,0],[0,1,0],[0,1,1,0],[0,1,0],[0,0,1,0],[1,1,0]]
 ending_move_board = [[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,0,1]]
 class AndreiVasilescu25031993:
-    DEFAULT_SEARCH_DEPTH = 5
+    DEFAULT_SEARCH_DEPTH = 3
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
