@@ -5,9 +5,9 @@ class AndreiVasilescu25031993:
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
-    MIN_VALUE = -100000
+    MIN_VALUE = 0
 
-    def enum(self, **enums):
+    def enum(**enums):
         return type('Enum', (), enums)
 
     LineOrientation = enum(UNKNOWN = 0, HORIZONTAL = 1, VERTICAL = 2)
@@ -35,7 +35,17 @@ class AndreiVasilescu25031993:
             currentRow = board[row]
             for column in range(len(currentRow)):
                 currentMove = (row, column)
-                if (moveEarnsPoints(board, playerMove)):
+                if (moveEarnsPoints(board, currentMove)):
+                    movesArray.append(currentMove)
+        return movesArray
+
+    def getPossibleFailingMoves(self, board):
+        movesArray = []
+        for row in range(len(board)):
+            currentRow = board[row]
+            for column in range(len(currentRow)):
+                currentMove = (row, column)
+                if (moveEarnsPoints(board, currentMove) == False):
                     movesArray.append(currentMove)
         return movesArray
 
@@ -53,16 +63,14 @@ class AndreiVasilescu25031993:
         if aboveRow >= 0:
             if board[aboveRow][moveColumn] == 1:
                 betweenRow = aboveRow + 1
-                if board[betweenRow][moveColumn] == 1 and
-                    board[betweenRow][moveColumn + 1] == 1:
+                if board[betweenRow][moveColumn] == 1 and board[betweenRow][moveColumn + 1] == 1:
                     return True
 
         belowRow = moveRow + 2
         if belowRow < len(board):
             if board[belowRow][moveColumn] == 1:
                 betweenRow = moveRow + 1
-                if board[betweenRow][moveColumn] == 1 and
-                    board[betweenRow][moveColumn + 1] == 1:
+                if board[betweenRow][moveColumn] == 1 and board[betweenRow][moveColumn + 1] == 1:
                     return True
         return False
 
@@ -74,8 +82,7 @@ class AndreiVasilescu25031993:
             if board[moveRow][leftColumn] == 1:
                 aboveRow = moveRow - 1
                 belowRow = aboveRow + 2
-                if board[aboveRow][leftColumn] == 1 and
-                    board[belowRow][leftColumn] == 1:
+                if board[aboveRow][leftColumn] == 1 and board[belowRow][leftColumn] == 1:
                     return True
 
         rightColumn = moveColumn + 1
@@ -83,9 +90,8 @@ class AndreiVasilescu25031993:
             if board[moveRow][rightColumn] == 1:
                 aboveRow = moveRow - 1
                 belowRow = aboveRow + 2
-                if board[aboveRow][rightColumn] == 1 and
-                    board[belowRow][rightColumn] == 1:
-                        return True
+                if board[aboveRow][rightColumn] == 1 and board[belowRow][rightColumn] == 1:
+                    return True
         return False
 
     def getLineOrientationForMove(self, playerMove):
@@ -123,7 +129,10 @@ class AndreiVasilescu25031993:
             return MAX_VALUE
 
         nodeValue = MAX_VALUE
-        possibleMoves = getPossibleMoves(board)
+        possibleMoves = getPossibleFailingMoves(board)
+        if len(possibleMoves) == 0:
+            possibleMoves = getPossibleMoves(board)
+
         for currentMove in possibleMoves:
             simulatedBoard = getSimulatedBoard(board, currentMove)
             score = exploreMaximizerNode(board, maxDepth, alfa, nodeValue)
@@ -141,9 +150,15 @@ class AndreiVasilescu25031993:
 
         nodeValue = MIN_VALUE
         possibleMoves = getPossibleSuccessfullMoves(board)
+        if len(possibleMoves) == 0:
+            possibleMoves = getPossibleMoves(board)
+
         for currentMove in possibleMoves:
             simulatedBoard = getSimulatedBoard(board, currentMove)
             score = exploreMinimizerNode(board, maxDepth - 1, nodeValue, beta)
+            if moveEarnsPoints(board, currentMove):
+                score = score + 1
+
             if score > nodeValue:
                 nodeValue = score
 
