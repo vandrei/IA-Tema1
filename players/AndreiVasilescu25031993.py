@@ -1,7 +1,8 @@
 from copy import deepcopy
+import threading
 
 class AndreiVasilescu25031993:
-    DEFAULT_SEARCH_DEPTH = 2
+    DEFAULT_SEARCH_DEPTH = 3
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
@@ -11,6 +12,8 @@ class AndreiVasilescu25031993:
         return type('Enum', (), enums)
 
     LineOrientation = enum(UNKNOWN = 0, HORIZONTAL = 1, VERTICAL = 2)
+
+    threadResults = [(0,0),(0,0)]
 
     def __init__(self):
         self.name = "Andrei Vasilescu"
@@ -185,16 +188,45 @@ class AndreiVasilescu25031993:
         board[moveRow][moveColumn] = 1
         return board
 
+    def splitArray(self, array):
+        half = len(array) / 2
+        return array[:half], array[half:]
+
     def findMiniMaxMove(self, board, maxDepth, playersScore):
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
 
         maxValue = playersScore
+
+        possibleMoves0, possibleMoves1 = self.splitArray(possibleMoves)
+
+        thread = threading.Thread(target=self.getBestMoveFromMoves, args=(board,
+            maxDepth, playersScore, possibleMoves1, 1))
+
+        thread.start()
+        self.getBestMoveFromMoves(board, maxDepth, playersScore, possibleMoves0, 0)
+
+        thread.join()
+
+        result0 = self.threadResults[0]
+        result1 = self.threadResults[1]
+
+        if result0[1][0] > result1[1][0]:
+            print("thread 0 found smth")
+            return result0[0]
+        else:
+            print("thread 1 found smth")
+            return result1[0]
+
+    def getBestMoveFromMoves(self, board, maxDepth, playersScore, moves, tid):
         bestMove = (0,0)
-        for currentMove in possibleMoves:
+        maxValue = playersScore
+
+        for currentMove in moves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
             score = self.exploreMinimizerNode(board, maxDepth - 1, playersScore, maxValue, self.MAX_VALUE)
+
             if self.moveEarnsPoints(board, currentMove):
                 score = (score[0] + 1, score[1])
 
@@ -202,7 +234,7 @@ class AndreiVasilescu25031993:
                 maxValue = score
                 bestMove = currentMove
 
-        return bestMove
+        self.threadResults[tid] = (bestMove, maxValue)
 
     def exploreMinimizerNode(self, board, maxDepth, playersScore, alfa, beta):
         if maxDepth == 0:
