@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 class AndreiVasilescu25031993:
-    DEFAULT_SEARCH_DEPTH = 4
+    DEFAULT_SEARCH_DEPTH = 2
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
@@ -41,7 +41,69 @@ class AndreiVasilescu25031993:
                     currentMove = (row, column)
                     if (self.moveEarnsPoints(board, currentMove)):
                         movesArray.append(currentMove)
+                else:
+                    orientation = self.getLineOrientationForMove((row, column))
+                    if orientation == self.LineOrientation.HORIZONTAL:
+                        movesArray.extend(self.getPossibleMovesForHorizontalPosition((row, column), board))
+                    else:
+                        movesArray.extend(self.getPossibleMovesForVerticalPosition((row, column), board))
+        movesArray = list(set(movesArray))
         return movesArray
+
+    def getPossibleMovesForHorizontalPosition(self, position, board):
+        moves = []
+        belowRow = position[0] + 2
+        betweenRow = position[0] + 1
+        column = position[1]
+        rightColumn = column + 1
+
+        if betweenRow < len(board):
+            if board[betweenRow][column] == 0:
+                moves.append((betweenRow, column))
+            if board[betweenRow][rightColumn] == 0:
+                moves.append((betweenRow, rightColumn))
+
+        if belowRow < len(board):
+            if board[belowRow][column] == 0:
+                moves.append((belowRow, column))
+
+        return moves
+
+    def getPossibleMovesForVerticalPosition(self, position, board):
+        moves = []
+
+        aboveRow = position[0] - 1
+        belowRow = position[0] + 1
+        row = position[0]
+        column = position[1]
+        leftColumn = position[1] - 1
+        rightColumn = position[1] + 1
+        if aboveRow >= 0:
+            if column < len(board[aboveRow]):
+                if board[aboveRow][column] == 0:
+                    moves.append((aboveRow, column))
+
+            if leftColumn >= 0:
+                if board[aboveRow][leftColumn] == 0:
+                    moves.append((aboveRow, leftColumn))
+
+        if belowRow < len(board):
+            if column < len(board[aboveRow]):
+                if board[belowRow][column] == 0:
+                    moves.append((belowRow, column))
+            if leftColumn > 0:
+                if board[belowRow][leftColumn] == 0:
+                    moves.append((belowRow, leftColumn))
+
+        if leftColumn > 0:
+            if board[row][leftColumn] == 0:
+                moves.append((row, leftColumn))
+
+        if rightColumn < len(board[row]):
+            if board[row][rightColumn] == 0:
+                moves.append((row, rightColumn))
+
+        return moves
 
     #OK
     def getPossibleFailingMoves(self, board):
@@ -127,8 +189,7 @@ class AndreiVasilescu25031993:
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
-            if len(possibleMoves) > 0:
-                return possibleMoves[0]
+            return possibleMoves[0]
 
         maxValue = playersScore
         bestMove = (0,0)
@@ -175,6 +236,7 @@ class AndreiVasilescu25031993:
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
+            return possibleMoves[0]
 
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)

@@ -8,7 +8,7 @@ def get_move(board, score, move_fnc, timeout):
     def handler(signum, frame):
       raise Exception("Timeout!")
     signal(SIGALRM, handler)
-    alarm(2)
+    alarm(1)
     try:
       move = move_fnc(board, score)
     finally:
@@ -29,7 +29,7 @@ def play_game(player0, player1, height=10, width=10, timeout=True):
       (r, c) = get_move(board, (score[current], score[1-current]), players[current].move, timeout)
       if board[r][c] != 0:
         # This means your algorithm sucks!
-        print("wrong move")
+        print("wrong move for player:"+str(players[current].name))
         return (cells_no * current, cells_no * (1-current), "wrong move")
       else:
         board[r][c] = 1
