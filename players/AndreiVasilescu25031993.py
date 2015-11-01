@@ -2,7 +2,7 @@ from copy import deepcopy
 import threading
 
 class AndreiVasilescu25031993:
-    DEFAULT_SEARCH_DEPTH = 3
+    DEFAULT_SEARCH_DEPTH = 2
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
@@ -213,10 +213,8 @@ class AndreiVasilescu25031993:
         result1 = self.threadResults[1]
 
         if result0[1][0] > result1[1][0]:
-            print("thread 0 found smth")
             return result0[0]
         else:
-            print("thread 1 found smth")
             return result1[0]
 
     def getBestMoveFromMoves(self, board, maxDepth, playersScore, moves, tid):
@@ -241,9 +239,13 @@ class AndreiVasilescu25031993:
             return playersScore
 
         nodeValue = playersScore
-        possibleMoves = self.getPossibleFailingMoves(board)
+        possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
+
+        if len(possibleMoves) == 0:
+            if playersScore[1] > playersScore[0]:
+                return (playersScore[0] - 1000, playersScore[1] + 1000)
 
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
@@ -267,6 +269,10 @@ class AndreiVasilescu25031993:
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
+
+        if len(possibleMoves) == 0:
+            if playersScore[1] > playersScore[0]:
+                return (playersScore[0] + 1000, playersScore[1] - 1000)
 
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
