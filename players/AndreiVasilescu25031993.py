@@ -1,10 +1,7 @@
 from copy import deepcopy
 
-empty_board = [[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0],[0,0,0,0],[0,0,0]]
-good_move_board = [[1,0,1],[0,1,0,0],[0,1,0],[0,1,1,0],[0,1,0],[0,0,1,0],[1,1,0]]
-ending_move_board = [[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,1,1],[1,1,1,1],[1,0,1]]
 class AndreiVasilescu25031993:
-    DEFAULT_SEARCH_DEPTH = 3
+    DEFAULT_SEARCH_DEPTH = 4
     ROW = 0
     COLUMN = 1
     MAX_VALUE = 100000
@@ -19,7 +16,7 @@ class AndreiVasilescu25031993:
         self.name = "Andrei Vasilescu"
 
     def move(self, board, score):
-        nextMove = self.findMiniMaxMove(board, self.DEFAULT_SEARCH_DEPTH)
+        nextMove = self.findMiniMaxMove(board, self.DEFAULT_SEARCH_DEPTH, score)
         return nextMove
 
     #OK
@@ -126,67 +123,69 @@ class AndreiVasilescu25031993:
         board[moveRow][moveColumn] = 1
         return board
 
-    def findMiniMaxMove(self, board, maxDepth):
+    def findMiniMaxMove(self, board, maxDepth, playersScore):
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
+            if len(possibleMoves) > 0:
+                return possibleMoves[0]
 
-        maxValue = self.MIN_VALUE
+        maxValue = playersScore
         bestMove = (0,0)
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
-            score = self.exploreMinimizerNode(board, maxDepth - 1, maxValue, self.MAX_VALUE)
+            score = self.exploreMinimizerNode(board, maxDepth - 1, playersScore, maxValue, self.MAX_VALUE)
             if self.moveEarnsPoints(board, currentMove):
-                score = score + 1
+                score = (score[0] + 1, score[1])
 
-            if score >= maxValue:
+            if score[0] >= maxValue[0]:
                 maxValue = score
                 bestMove = currentMove
 
         return bestMove
 
-    def exploreMinimizerNode(self, board, maxDepth, alfa, beta):
+    def exploreMinimizerNode(self, board, maxDepth, playersScore, alfa, beta):
         if maxDepth == 0:
-            return 0
+            return playersScore
 
-        nodeValue = self.MAX_VALUE
+        nodeValue = playersScore
         possibleMoves = self.getPossibleFailingMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
 
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
-            score = self.exploreMaximizerNode(board, maxDepth - 1, alfa, nodeValue)
+            score = self.exploreMaximizerNode(board, maxDepth - 1, playersScore, alfa, self.MAX_VALUE)
             if self.moveEarnsPoints(board, currentMove):
-                score = score + 1
+                score = (score[0], score[1] + 1)
 
-            if score < nodeValue:
+            if score[1] < nodeValue[1]:
                 nodeValue = score
 
-            if nodeValue <= alfa:
+            if nodeValue[0] <= alfa:
                 return nodeValue
 
         return nodeValue
 
-    def exploreMaximizerNode(self, board, maxDepth, alfa, beta):
+    def exploreMaximizerNode(self, board, maxDepth, playersScore, alfa, beta):
         if maxDepth == 0:
-            return 0
+            return playersScore
 
-        nodeValue = self.MIN_VALUE
+        nodeValue = playersScore
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
 
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
-            score = self.exploreMinimizerNode(board, maxDepth - 1, nodeValue, beta)
+            score = self.exploreMinimizerNode(board, maxDepth - 1, playersScore, nodeValue[0], beta)
             if self.moveEarnsPoints(board, currentMove):
-                score = score + 1
+                score = (score[0] + 1, score[1])
 
-            if score >= nodeValue:
+            if score[0] >= nodeValue[0]:
                 nodeValue = score
 
-            if nodeValue > beta:
+            if nodeValue[1] >= beta:
                 return nodeValue
 
         return nodeValue
