@@ -189,7 +189,6 @@ class AndreiVasilescu25031993:
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
-            return possibleMoves[0]
 
         maxValue = playersScore
         bestMove = (0,0)
@@ -236,7 +235,6 @@ class AndreiVasilescu25031993:
         possibleMoves = self.getPossibleSuccessfullMoves(board)
         if len(possibleMoves) == 0:
             possibleMoves = self.getPossibleMoves(board)
-            return possibleMoves[0]
 
         for currentMove in possibleMoves:
             simulatedBoard = self.getSimulatedMoveBoard(board, currentMove)
